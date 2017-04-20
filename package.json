@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "aws-sdk": "*",
-    "q": "*",
-    "sinon": "^2.1.0"
+    "q": "*"
   },
   "devDependencies": {
+    "sinon": "^2.1.0",
     "mocha": "*",
     "chai": "*",
     "eslint": "^3.19.0",
