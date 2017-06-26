@@ -119,6 +119,37 @@ class Dynamo {
 
     return deferred.promise;
   }
+
+  batchPut(tableName, records) {
+    const params = {
+      RequestItems: {},
+    };
+
+    params.RequestItems[tableName] = [];
+    records.forEach((record) => {
+      const request = {
+        PutRequest: {
+          Item: record,
+        },
+      };
+      params.RequestItems[tableName].push(request);
+    });
+
+    return this._batchWrite(params);
+  }
+
+  _batchWrite(params) {
+    const deferred = Q.defer();
+    this.docClient.batchWrite(params, (err, data) => {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        deferred.resolve(data);
+      }
+    });
+
+    return deferred.promise;
+  }
 }
 
 module.exports = Dynamo;
