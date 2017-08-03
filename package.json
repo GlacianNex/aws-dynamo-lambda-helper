@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "aws-sdk": "*",
+    "deepmerge": "^1.5.0",
+    "dynamodb-marshaler": "^2.0.0",
     "q": "*"
   },
   "devDependencies": {

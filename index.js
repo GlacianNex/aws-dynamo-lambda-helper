@@ -2,6 +2,8 @@
 
 const AWS = require('aws-sdk');
 const Q = require('q');
+const merge = require('deepmerge');
+const unmarshalJson = require('dynamodb-marshaler/unmarshalJson');
 
 class Dynamo {
   constructor(awsRegion, profile) {
@@ -17,7 +19,39 @@ class Dynamo {
       });
     }
 
+    this.eventsFn = {
+      INSERT: () => Q(),
+      MODIFY: () => Q(),
+      REMOVE: () => Q(),
+    };
+
     this.docClient = new AWS.DynamoDB.DocumentClient(params);
+  }
+
+  process(event) {
+    const fullRecord = Dynamo._createFullRecord(event);
+    const fn = this.eventsFn[event.eventName];
+    let chain = Q.defer();
+    chain.reject(new Error(`Unexpected event: ${this.eventType}`));
+    chain = chain.promise;
+    if (fn) {
+      chain = fn(fullRecord).catch((err) => {
+        throw err;
+      });
+    }
+    return chain;
+  }
+
+  onInsert(method) {
+    this.eventsFn.INSERT = method;
+  }
+
+  onUpdate(method) {
+    this.eventsFn.MODIFY = method;
+  }
+
+  onRemove(method) {
+    this.eventsFn.REMOVE = method;
   }
 
   get(tableName, hashAndRange) {
@@ -38,7 +72,7 @@ class Dynamo {
     return deferred.promise;
   }
 
-  query(tableName, keyExp, filterExp, nameMap, valueMap) {
+  query(tableName, keyExp, filterExp, nameMap, valueMap, scanForward, limit) {
     const deferred = Q.defer();
     const params = {
       TableName: tableName,
@@ -46,7 +80,8 @@ class Dynamo {
       FilterExpression: filterExp,
       ExpressionAttributeValues: valueMap,
       ExpressionAttributeNames: nameMap,
-      ScanIndexForward: false,
+      ScanIndexForward: scanForward || false,
+      Limit: limit,
     };
 
     this.docClient.query(params, (err, data) => {
@@ -136,6 +171,21 @@ class Dynamo {
     });
 
     return this._batchWrite(params);
+  }
+
+  static _createFullRecord(event) {
+    let fullRecord;
+    if (event.dynamodb.OldImage) {
+      fullRecord = JSON.parse(unmarshalJson(event.dynamodb.OldImage));
+      if (event.dynamodb.NewImage) {
+        const updatedFields = JSON.parse(unmarshalJson(event.dynamodb.NewImage));
+        fullRecord = merge(fullRecord, updatedFields);
+      }
+    } else {
+      fullRecord = JSON.parse(unmarshalJson(event.dynamodb.NewImage));
+    }
+
+    return fullRecord;
   }
 
   _batchWrite(params) {
