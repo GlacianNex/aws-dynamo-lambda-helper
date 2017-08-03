@@ -1,6 +1,6 @@
 {
   "name": "aws-dynamo-helper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Library that makes it easy to work with AWS DynamoDB.",
   "main": "index.js",
   "scripts": {
@@ -26,11 +26,7 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3"
   },
-  "keywords": [
-    "aws",
-    "dynamo",
-    "dynamodb"
-  ],
+  "keywords": ["aws", "dynamo", "dynamodb"],
   "author": "Igor Chernyy",
   "license": "MIT",
   "bugs": {
