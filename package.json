@@ -1,6 +1,6 @@
 {
   "name": "aws-dynamo-helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Library that makes it easy to work with AWS DynamoDB.",
   "main": "index.js",
   "scripts": {
