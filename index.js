@@ -8,7 +8,9 @@ class Dynamo {
     const region = awsRegion || process.env.AWS_DEFAULT_REGION;
     const params = { region };
 
-    if (profile) {
+    const awsProfile = profile || process.env.AWS_PROFILE;
+
+    if (awsProfile) {
       const SharedIniFileCredentials = AWS.SharedIniFileCredentials;
       params.credentials = new SharedIniFileCredentials({ profile });
     }
