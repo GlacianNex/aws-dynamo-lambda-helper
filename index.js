@@ -91,11 +91,12 @@ class Dynamo {
     return deferred.promise;
   }
 
-  update(tableName, hashAndRange, updateExp, expNames, expValues) {
+  update(tableName, hashAndRange, updateExp, expNames, expValues, conditionExp) {
     const deferred = Q.defer();
     const params = {
       TableName: tableName,
       Key: hashAndRange,
+      ConditionExpression: conditionExp,
       UpdateExpression: updateExp,
       ExpressionAttributeValues: expValues,
       ExpressionAttributeNames: expNames
